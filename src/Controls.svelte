@@ -1,0 +1,65 @@
+<script>
+	import CCW from '$lib/images/CCW.webp';
+	import CW from '$lib/images/CW.webp';
+	import Reset from '$lib/images/Restart.webp';
+	import { fade } from 'svelte/transition';
+	import { isAnimated, isSolved, tipping, whoosh } from './shared.svelte';
+	import { _sound } from './sound.svelte';
+	import { ss } from './state.svelte';
+	import ToolButton from './Tool Button.svelte';
+
+	const onSpin = (cw) => {
+		_sound.play('click');
+		ss.spin = cw ? 1 : -1;
+		ss.noui = true;
+	};
+
+	const onReset = () => {
+		_sound.play('click');
+		whoosh();
+
+		ss.moves = 0;
+		ss.flip = 'reset';
+	};
+
+	const solved = $derived(isSolved());
+	const hidden = $derived(solved || ss.surrender || tipping());
+	const canRotate = $derived(!isAnimated() && !solved);
+	const canReset = $derived(canRotate && ss.moves > 0);
+</script>
+
+{#if !hidden}
+	<div class="controls" in:fade>
+		<div class="control">
+			<ToolButton id="tb-ccw" src={CCW} disabled={!canRotate} opaque={true} showDisabled={solved} onClick={() => onSpin(false)} />
+			<span>turn</span>
+		</div>
+		<div class="control">
+			<ToolButton id="tb-reset" src={Reset} disabled={!canReset} opaque={true} onClick={onReset} />
+			<span>reset</span>
+		</div>
+		<div class="control">
+			<ToolButton id="tb-cw" src={CW} disabled={!canRotate} opaque={true} showDisabled={solved} onClick={() => onSpin(true)} />
+			<span>turn</span>
+		</div>
+	</div>
+{/if}
+
+<style>
+	.controls {
+		grid-area: 5/1;
+		place-self: center;
+		display: grid;
+		grid-auto-flow: column;
+		gap: 55px;
+		transition: opacity 0.3s;
+		z-index: 1;
+	}
+
+	.control {
+		display: grid;
+		justify-items: center;
+		font-size: 16px;
+		color: var(--text-dim);
+	}
+</style>
