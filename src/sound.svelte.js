@@ -47,7 +47,7 @@ export const _sound = $state({
             loop.play();
         }
 
-        loop.volume(MUSIC_VOLUMES[_sound.music]);
+        loop.volume(_sound.music > 0 ? MUSIC_VOLUMES[_sound.music] : 0);
     },
     stopMusic: () => {
         loop.stop();

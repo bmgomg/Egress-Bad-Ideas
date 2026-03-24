@@ -1,6 +1,7 @@
 <script>
 	import GamePage from '../Game Page.svelte';
 	import Home from '../Home.svelte';
+	import { _sound } from '../sound.svelte';
 	import Splash from '../Splash.svelte';
 	import { ss } from '../state.svelte';
 	import { clientRect, post } from '../utils';
@@ -29,16 +30,37 @@
 			scale = Math.min(scx, scy);
 		};
 
+		const toggleMusic = () => {
+			_sound.music = -_sound.music;
+			_sound.playMusic();
+		};
+
+		const onBlur = () => {
+			if (_sound.music > 0) {
+				toggleMusic();
+			}
+		};
+
+		const onFocus = () => {
+			if (_sound.music < 0) {
+				toggleMusic();
+			}
+		};
+
 		onResize();
 
 		window.addEventListener('contextmenu', disable);
 		window.addEventListener('dblclick', disable);
 		window.addEventListener('resize', onResize);
+		window.addEventListener('blur', onBlur);
+		window.addEventListener('focus', onFocus);
 
 		return () => {
 			window.removeEventListener('contextmenu', disable);
 			window.removeEventListener('dblclick', disable);
 			window.removeEventListener('resize', onResize);
+			document.removeEventListener('blur', onBlur);
+			document.removeEventListener('focus', onFocus);
 		};
 	});
 
